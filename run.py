@@ -1,16 +1,12 @@
-import time
 from dataclasses import dataclass
 from pathlib import Path
-
-import requests
+from leaderboard.futures import TimeFilter, TypeFilter
 from selenium import webdriver
 from selenium.webdriver import ActionChains
-from selenium.webdriver.common.keys import Keys
-
 from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.common.by import By
+from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.support import expected_conditions as EC
-from selenium.webdriver.common.desired_capabilities import DesiredCapabilities
 from selenium.webdriver.support.wait import WebDriverWait
 
 PWD = Path(__file__).resolve().parent
@@ -51,12 +47,12 @@ driver.get(url_leaderboard)
 
 wait_for_button("next-page")
 wait_for_button("onetrust-reject-all-handler")
-# button = driver.find_element(By.ID, 'onetrust-reject-all-handler')
-# button.click()
 driver.execute_script("document.getElementById('onetrust-reject-all-handler').click()")
+
 def get_next_page_button():
     wait_for_button('next-page')
     return driver.find_element(By.ID, 'next-page')
+
 
 def is_last_page():
     wait_for_button('next-page')
@@ -65,9 +61,13 @@ def is_last_page():
     return False
 
 
-def visit_page(number: int):
+def visit_page(number: int, _timeframe: TimeFilter, _typefilter: TypeFilter):
+    """"""
     driver.get(url_leaderboard)
+    _typefilter.click(driver)
+    _timeframe.click(driver)
     wait_for_button('next-page')
+
     if number == 1:
         return
     click_times = number - 1
@@ -94,38 +94,46 @@ def visit_page(number: int):
 
 @dataclass
 class Trader:
-    text: str
     uuid: str
+    typefilter: str
+
 
 traders = []
-done = False
-current_page = 0
+for typefilter in TypeFilter.__members__.values():
+    print(f"visiting {typefilter.value}")
 
-while not done:
-    current_page += 1
-    visit_page(current_page)
-    wait_for_button('next-page')
-    data = driver.execute_script("return document.querySelectorAll('.TraderCard');")
-    traders_count = len(data)
+    for timefilter in TimeFilter.__members__.values():
+        print(f"visiting {' '.join([typefilter.value, timefilter.value])}")
 
-    for i in range(traders_count):
-        x = data[i]
-        text = x.text
-        driver.execute_script(f"document.querySelectorAll('.TraderCard')[{i}].click()")
-        print(driver.current_url)
-        uuid = driver.current_url.split('encryptedUid=')[1]
-        traders.append(
-            Trader(
-                text=text,
-                uuid=uuid,
-            )
-        )
-        visit_page(current_page)
-        wait_for_button('next-page')
-        data = driver.execute_script("return document.querySelectorAll('.TraderCard');")
+        done = False
+        current_page = 0
 
-    if is_last_page():
-        done = True
+        while not done:
+            current_page += 1
+            visit_page(current_page, timefilter, typefilter)
+            wait_for_button('next-page')
+            data = driver.execute_script("return document.querySelectorAll('.TraderCard');")
+            traders_count = len(data)
+
+            for i in range(traders_count):
+                print(f"visiting trader {i} on page {current_page}")
+
+                x = data[i]
+                driver.execute_script(f"document.querySelectorAll('.TraderCard')[{i}].click()")
+                print(driver.current_url)
+                uuid = driver.current_url.split('encryptedUid=')[1]
+                traders.append(
+                    Trader(
+                        uuid=uuid,
+                        typefilter=typefilter.value,
+                    )
+                )
+                visit_page(current_page, timefilter, typefilter)
+                wait_for_button('next-page')
+                data = driver.execute_script("return document.querySelectorAll('.TraderCard');")
+
+            if is_last_page():
+                done = True
 
 print(traders)
 # Close the browser
@@ -135,7 +143,7 @@ import json
 
 out = {}
 for t in traders:
-    out[t.uuid] = t.text
+    out[t.uuid] = t.typefilter
 
 with open('traders.json', 'w') as f:
     json.dump(out, f, indent='\t')

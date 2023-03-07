@@ -24,9 +24,11 @@ for i in range(len(df)):
     if int(entryPrice) > 0:
         set(i, 'entryPrice', f"{entryPrice:.2f}")
 
+    user = get(i, 'uuid')
+    set(i, 'user', f'<a href="https://www.binance.com/en/futures-activity/leaderboard/user/um?encryptedUid={user}" target="_blank">click</a>')
 
-df = df.reindex(columns=['symbol', 'amount', 'pnl', 'roe', 'entryPrice', 'markPrice', 'leverage', 'updateTime'])
-html = df.to_html(header=True, classes='my-table table table-bordered table-striped')
+df = df.reindex(columns=['symbol', 'amount', 'pnl', 'roe', 'entryPrice', 'markPrice', 'leverage', 'updateTime', 'user'])
+html = df.to_html(header=True, classes='my-table table table-bordered table-striped', escape=False)
 html = '\n'.join(html.splitlines()[:-1])
 pager = """
   <tfoot>

@@ -3,7 +3,7 @@ import time
 from dataclasses import dataclass
 
 import requests, json
-
+from requests import JSONDecodeError
 
 HEADERS = {
     "Cache-Control": "no-cache",
@@ -21,9 +21,13 @@ with open('traders.json', 'r') as f:
     traders = json.load(f)
 
 
-def get_body(uuid: str) -> dict:
+def get_body(uuid: str, typefilter: str) -> dict:
     d = BODY.copy()
     d["encryptedUid"] = uuid
+    if typefilter == "UM":
+        d['tradeType'] = 'PERPETUAL'
+    if typefilter == 'CM':
+        d['tradeType'] = 'DELIVERY'
     return d
 
 
@@ -45,9 +49,14 @@ class Position:
 positions = []
 
 for uuid, v in traders.items():
-    r = requests.post(API, json=get_body(uuid), headers=HEADERS)
-    print(f"{uuid}: {r.json()})")
-    data = r.json()['data'].get("otherPositionRetList")
+    r = requests.post(API, json=get_body(uuid, v), headers=HEADERS)
+    print(f"{uuid}: {v}")
+    time.sleep(1)
+    try:
+        data = r.json()['data'].get("otherPositionRetList")
+    except JSONDecodeError as err:
+        print(r, r.text)
+        raise err
     if data:
         for d in data:
             d['uuid'] = uuid

@@ -1,0 +1,19 @@
+parameters: {}
+environment: {}
+packages:
+    - name: table
+      shared: false
+      environment: {}
+      parameters: {}
+      annotations: {}
+      functions:
+        - name: tablesorter
+          binary: false
+          main: ""
+          runtime: python:default
+          web: true
+          websecure: false
+          parameters: {}
+          environment: {}
+          annotations: {}
+          limits: {}

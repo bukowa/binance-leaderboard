@@ -1,6 +1,30 @@
 import pandas as pd
 
 df = pd.read_json('positions.json')
+
+def get(index, key):
+    return df.loc[index, key]
+
+def set(index, key, value):
+    df.loc[index, key] = value
+
+
+for i in range(len(df)):
+    pnl = get(i, 'pnl')
+    set(i, 'pnl', f"{pnl:.2f}")
+
+    roe = get(i, 'roe')
+    set(i, 'roe', f"{roe:.3f}")
+
+    markPrice = get(i, 'markPrice')
+    if int(markPrice) > 0:
+        set(i, 'markPrice', f"{markPrice:.2f}")
+
+    entryPrice = get(i, 'entryPrice')
+    if int(entryPrice) > 0:
+        set(i, 'entryPrice', f"{entryPrice:.2f}")
+
+
 df = df.reindex(columns=['symbol', 'amount', 'pnl', 'roe', 'entryPrice', 'markPrice', 'leverage', 'updateTime'])
 html = df.to_html(header=True, classes='my-table table table-bordered table-striped')
 html = '\n'.join(html.splitlines()[:-1])

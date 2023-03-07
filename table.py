@@ -27,6 +27,8 @@ for i in range(len(df)):
     user = get(i, 'uuid')
     set(i, 'user', f'<a href="https://www.binance.com/en/futures-activity/leaderboard/user/um?encryptedUid={user}" target="_blank">click</a>')
 
+    set(i, 'amount', str(get(i, 'amount')))
+
 df = df.reindex(columns=['symbol', 'amount', 'pnl', 'roe', 'entryPrice', 'markPrice', 'leverage', 'updateTime', 'user'])
 html = df.to_html(header=True, classes='my-table table table-bordered table-striped', escape=False)
 html = '\n'.join(html.splitlines()[:-1])

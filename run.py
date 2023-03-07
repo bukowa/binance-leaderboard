@@ -147,4 +147,3 @@ for t in traders:
 
 with open('traders.json', 'w') as f:
     json.dump(out, f, indent='\t')
-

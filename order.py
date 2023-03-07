@@ -51,7 +51,7 @@ positions = []
 for uuid, v in traders.items():
     r = requests.post(API, json=get_body(uuid, v), headers=HEADERS)
     print(f"{uuid}: {v}")
-    time.sleep(1)
+    time.sleep(5)
     try:
         data = r.json()['data'].get("otherPositionRetList")
     except JSONDecodeError as err:

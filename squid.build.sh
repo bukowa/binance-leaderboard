@@ -1,7 +1,7 @@
 #!/bin/bash
 set -e
 
-tag=${DOCKER_TAG:-"dockersquidproxybinanceleaderboardtest"}
+tag=${DOCKER_TAG:-"dockersquidproxybinanceleaderboardtes"}
 docker build --tag=$tag -f squid.Dockerfile .
 
 if [[ "$1" == "copy" ]]

@@ -1,3 +1,5 @@
+import json
+import os.path
 from dataclasses import dataclass
 from pathlib import Path
 from leaderboard.futures import TimeFilter, TypeFilter
@@ -135,15 +137,21 @@ for typefilter in TypeFilter.__members__.values():
             if is_last_page():
                 done = True
 
-print(traders)
 # Close the browser
 driver.quit()
 
-import json
+# Read old traders
+if os.path.isfile('traders.json'):
+    with open('traders.json', 'r') as f:
+        old_traders = json.load(f)
+else:
+    old_traders = {}
 
-out = {}
+# Update with new traders
+output_traders = old_traders.copy()
 for t in traders:
-    out[t.uuid] = t.typefilter
+    output_traders[t.uuid] = t.typefilter
 
+# Save all traders
 with open('traders.json', 'w') as f:
-    json.dump(out, f, indent='\t')
+    json.dump(output_traders, f, indent='\t')

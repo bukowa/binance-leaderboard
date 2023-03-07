@@ -1,9 +1,14 @@
 import dataclasses
+import os
+import random
 import time
 from dataclasses import dataclass
-
+from pathlib import Path
 import requests, json
 from requests import JSONDecodeError
+
+BASE_PATH = Path(__file__).resolve().parent
+PROXIES_PATH = BASE_PATH / "proxies.json"
 
 HEADERS = {
     "Cache-Control": "no-cache",
@@ -17,8 +22,15 @@ BODY = {
 API = "https://www.binance.com/bapi/futures/v1/public/future/leaderboard/getOtherPosition"
 
 
+traders = {}
 with open('traders.json', 'r') as f:
     traders = json.load(f)
+
+
+proxy_list = []
+if PROXIES_PATH.exists():
+    with open('proxies.json') as f:
+        proxy_list = json.load(f)
 
 
 def get_body(uuid: str, typefilter: str) -> dict:
@@ -49,9 +61,19 @@ class Position:
 positions = []
 
 for uuid, v in traders.items():
-    r = requests.post(API, json=get_body(uuid, v), headers=HEADERS)
-    print(f"{uuid}: {v}")
-    time.sleep(5)
+    request_kwargs = dict(
+        url=API, json=get_body(uuid, v), headers=HEADERS
+    )
+    # request with proxies
+    if proxy_list:
+        request_kwargs['proxies'] = {
+            'http': random.choice(proxy_list),
+            'https': random.choice(proxy_list),
+        }
+
+    print(f"{uuid}: {v}: {request_kwargs}")
+    r = requests.post(**request_kwargs)
+
     try:
         data = r.json()['data'].get("otherPositionRetList")
     except JSONDecodeError as err:
@@ -63,6 +85,9 @@ for uuid, v in traders.items():
             positions.append(
                 dataclasses.asdict(Position(**d))
             )
+
+    if not proxy_list:
+        time.sleep(5)
 
 with open('positions.json', 'w') as f:
     json.dump(positions, f, indent='\t')

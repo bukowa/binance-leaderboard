@@ -31,3 +31,7 @@ parse_table:
 	@brave-browser index.html || true
 
 all: parse_traders parse_positions_proxy parse_table
+
+.PHONY: notebook
+notebook:
+	jupyter notebook

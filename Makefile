@@ -28,6 +28,9 @@ parse_positions_proxy: proxies output parse_positions
 .PHONY: parse_table
 parse_table:
 	@python parse_table.py > index.html
+
+.PHONY: browse
+browse:
 	@brave-browser index.html || true
 
 all: parse_traders parse_positions_proxy parse_table
@@ -36,7 +39,7 @@ all: parse_traders parse_positions_proxy parse_table
 notebook:
 	jupyter notebook
 
-FFILE=./function/packages/table/tablesorter/main.py
+FFILE=./function/packages/table/tablesorter/tablesorter.py
 FNAME=table/tablesorter
 FNAMESPACE=binance-leaderboard-test
 
@@ -53,4 +56,4 @@ function: parse_table
 	doctl serverless functions get -r $(FNAME)
 
 .PHONY: fresh
-fresh: parse_positions_proxy function
+fresh: parse_positions_proxy proxies/delete function

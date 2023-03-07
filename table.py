@@ -1,6 +1,7 @@
 import pandas as pd
 
 df = pd.read_json('positions.json')
+df = df.reindex(columns=['symbol', 'amount', 'pnl', 'roe', 'entryPrice', 'markPrice', 'leverage', 'updateTime'])
 html = df.to_html(header=True, classes='my-table table table-bordered table-striped')
 html = '\n'.join(html.splitlines()[:-1])
 pager = """

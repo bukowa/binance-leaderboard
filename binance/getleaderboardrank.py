@@ -1,5 +1,48 @@
 from enum import Enum
+from typing import Any
+
 import requests
+from dataclasses import dataclass
+
+
+@dataclass
+class TraderRank:
+    """
+    {'futureUid': None,
+     'nickName': 'Anonymous User-3ded25',
+     'userPhotoUrl': '',
+     'rank': 816,
+     'pnl': 948.743831,
+     'roi': 0.934421,
+     'positionShared': True,
+     'twitterUrl': None,
+     'encryptedUid': '35CF2A53D1B9BFD0F948DE7359AED978',
+     'updateTime': 1678233600000,
+     'followerCount': 10,
+     'twShared': True,
+     'isTwTrader': True,
+     'openId': 'zoh752p'}
+    """
+    futureUid: Any
+    nickName: str
+    userPhotoUrl: str
+    rank: int
+    pnl: float
+    roi: float
+    positionShared: bool
+    twitterUrl: str
+    encryptedUid: str
+    updateTime: int
+    followerCount: int
+    twShared: bool
+    isTwTrader: bool
+    openId: str
+
+    def __hash__(self):
+        return hash(self.nickName)
+
+    def __eq__(self, other):
+        return self.nickName == other.nickName
 
 
 class Filter:
@@ -50,7 +93,7 @@ def unique_filters(*filters):
     return list({type(f): f for f in filters}.values())
 
 
-def get_request_body(*filters):
+def get_request_body(*filters) -> dict:
     """
     Takes any number of filter objects as input and returns a dictionary representing
     the request body for the Binance API call.
@@ -74,6 +117,17 @@ def get_apis_for_all_traders() -> list['API']:
                     api = api_is_trader(pt)
                     apis.append(api)
     return apis
+
+
+def get_traders(*api: 'API'):
+    traders = []
+    for a in api:
+        traders.extend([TraderRank(**r) for r in a.requests_post().json()['data']])
+    return traders
+
+
+def get_unique_traders(*api: 'API'):
+    return list(set(get_traders(*api)))
 
 
 class API:

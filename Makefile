@@ -16,7 +16,8 @@ output:
 
 .PHONY: parse_traders
 parse_traders:
-	python parse_traders.py
+	python ./binance/getleaderboardrank.py
+	python ./binance/getpositionstatus.py
 
 .PHONY: parse_positions
 parse_positions:

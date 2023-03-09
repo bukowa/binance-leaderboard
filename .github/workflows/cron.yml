@@ -24,6 +24,7 @@ jobs:
         run: |
           pip install -r ./binance/requirements.txt
           python ./binance/getleaderboardrank.py
+          python ./binance/getpositionstatus.py
 
       - uses: stefanzweifel/git-auto-commit-action@c8254de74fb2d4577fe54a38cde3186515e9931c
         with:

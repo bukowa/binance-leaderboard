@@ -23,7 +23,7 @@ API = "https://www.binance.com/bapi/futures/v1/public/future/leaderboard/getOthe
 
 
 traders = {}
-with open('traders.json', 'r') as f:
+with open('traders_with_position.json', 'r') as f:
     traders = json.load(f)
 
 
@@ -54,6 +54,7 @@ class Position:
     tradeBefore: bool
     leverage: int
     uuid: str
+
 
 positions = []
 

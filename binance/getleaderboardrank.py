@@ -39,12 +39,13 @@ class Trader:
     twShared: bool
     isTwTrader: bool
     openId: str
+    tradeType: str
 
     def __hash__(self):
-        return hash(self.nickName)
+        return hash(self.nickName + self.tradeType)
 
     def __eq__(self, other):
-        return self.nickName == other.nickName
+        return self.nickName + self.tradeType == other.nickName + self.tradeType
 
 
 class Filter:
@@ -124,7 +125,10 @@ def get_apis_for_all_traders() -> list['API']:
 def get_traders(*api: 'API'):
     traders = []
     for a in api:
-        traders.extend([Trader(**r) for r in a.requests_post().json()['data']])
+        trade_type = a.requests_body[TradeType.key.value]
+        for each in a.requests_post().json()['data']:
+            each['tradeType'] = trade_type
+            traders.append(Trader(**each))
     return traders
 
 

@@ -33,13 +33,10 @@ if PROXIES_PATH.exists():
         proxy_list = json.load(f)
 
 
-def get_body(uuid: str, typefilter: str) -> dict:
+def get_body(uuid: str, trade_type: str) -> dict:
     d = BODY.copy()
     d["encryptedUid"] = uuid
-    if typefilter == "UM":
-        d['tradeType'] = 'PERPETUAL'
-    if typefilter == 'CM':
-        d['tradeType'] = 'DELIVERY'
+    d["tradeType"] = trade_type
     return d
 
 
@@ -60,9 +57,9 @@ class Position:
 
 positions = []
 
-for uuid, v in traders.items():
+for v in traders:
     request_kwargs = dict(
-        url=API, json=get_body(uuid, v), headers=HEADERS
+        url=API, json=get_body(v['encryptedUid'], v['tradeType']), headers=HEADERS
     )
     # request with proxies
     if proxy_list:
@@ -71,7 +68,7 @@ for uuid, v in traders.items():
             'https': random.choice(proxy_list),
         }
 
-    print(f"{uuid}: {v}: {request_kwargs}")
+    print(f"{v['encryptedUid']}: {v}: {request_kwargs}")
     r = requests.post(**request_kwargs)
 
     try:

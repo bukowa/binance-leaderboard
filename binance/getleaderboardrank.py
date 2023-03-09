@@ -1,31 +1,15 @@
-import json
-import os
+#!/usr/bin/env python3
+from dataclasses import dataclass, asdict
 from enum import Enum
 from typing import Any
 
 import requests
-from dataclasses import dataclass, asdict
+
+from common.common import save_json, load_json_default
 
 
 @dataclass
 class Trader:
-    """
-    {'futureUid': None,
-     'nickName': 'Anonymous User-3ded25',
-     'userPhotoUrl': '',
-     'rank': 816,
-     'pnl': 948.743831,
-     'roi': 0.934421,
-     'positionShared': True,
-     'twitterUrl': None,
-     'encryptedUid': '35CF2A53D1B9BFD0F948DE7359AED978',
-     'updateTime': 1678233600000,
-     'followerCount': 10,
-     'twShared': True,
-     'isTwTrader': True,
-     'openId': 'zoh752p'}
-    """
-
     futureUid: Any
     nickName: str
     userPhotoUrl: str
@@ -138,17 +122,13 @@ def get_unique_traders(*api: "API"):
 
 
 def parse_traders(*api: "API", file="traders.json"):
-    traders_json = []
+    old_traders = [Trader(**d) for d in load_json_default(file, [])]
+    old_traders.extend(get_unique_traders(*api))
+    save_json(file, list(map(asdict, set(old_traders))), indent="\t")
 
-    if os.path.isfile(file):
-        with open(file, "r") as f:
-            traders_json = json.load(f)
 
-    traders_rank = [Trader(**d) for d in traders_json]
-    traders_rank.extend(get_unique_traders(*api))
-
-    with open(file, "w") as f:
-        json.dump(list(map(asdict, set(traders_rank))), f, indent="\t")
+def parse_all_traders(file="traders.json"):
+    return parse_traders(*get_apis_for_all_traders(), file=file)
 
 
 class API:
@@ -159,7 +139,6 @@ class API:
     """
 
     URL = "https://www.binance.com/bapi/futures/v3/public/future/leaderboard/getLeaderboardRank"
-
     HEADERS = {"content-type": "application/json"}
 
     DEFAULT_FILTERS = {
@@ -213,4 +192,4 @@ class API:
 
 
 if __name__ == "__main__":
-    parse_traders(*get_apis_for_all_traders(), file="traders.json")
+    parse_all_traders(file="traders.json")

@@ -1,6 +1,6 @@
 import pandas as pd
 
-df = pd.read_json("positions.json")
+df = pd.read_json("./binance/positions.json")
 
 
 def get(index, key):

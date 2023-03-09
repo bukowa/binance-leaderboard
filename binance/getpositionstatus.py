@@ -1,11 +1,10 @@
+#!/usr/bin/env python3
 import json
+from dataclasses import dataclass
 from typing import Any
 
-from more_itertools import chunked
 import requests
-from dataclasses import dataclass, asdict
-
-DEBUG = False
+from more_itertools import chunked
 
 
 @dataclass
@@ -53,6 +52,7 @@ def get_traders_with_position(file="traders.json"):
                 position_statuses,
             )
         }
+
         desired_traders.extend(
             filter(lambda t: t["encryptedUid"] in uuids_with_positions, traders)
         )
@@ -60,8 +60,8 @@ def get_traders_with_position(file="traders.json"):
     return desired_traders
 
 
-def save_traders_with_position():
-    with open("traders_with_position.json", "w") as f:
+def parse_positions(file="traders_with_position.json"):
+    with open(file, "w") as f:
         json.dump(get_traders_with_position(), f, indent="\t")
 
 
@@ -93,4 +93,4 @@ class API:
 
 
 if __name__ == "__main__":
-    save_traders_with_position()
+    parse_positions(file="traders_with_position.json")

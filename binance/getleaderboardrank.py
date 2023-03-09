@@ -1,12 +1,14 @@
+import json
+import os
 from enum import Enum
 from typing import Any
 
 import requests
-from dataclasses import dataclass
+from dataclasses import dataclass, asdict
 
 
 @dataclass
-class TraderRank:
+class Trader:
     """
     {'futureUid': None,
      'nickName': 'Anonymous User-3ded25',
@@ -122,12 +124,26 @@ def get_apis_for_all_traders() -> list['API']:
 def get_traders(*api: 'API'):
     traders = []
     for a in api:
-        traders.extend([TraderRank(**r) for r in a.requests_post().json()['data']])
+        traders.extend([Trader(**r) for r in a.requests_post().json()['data']])
     return traders
 
 
 def get_unique_traders(*api: 'API'):
     return list(set(get_traders(*api)))
+
+
+def parse_traders(*api: 'API', file='traders.json'):
+    traders_json = []
+
+    if os.path.isfile(file):
+        with open(file, 'r') as f:
+            traders_json = json.load(f)
+
+    traders_rank = [Trader(**d) for d in traders_json]
+    traders_rank.extend(get_unique_traders(*api))
+
+    with open(file, 'w') as f:
+        json.dump(list(map(asdict, set(traders_rank))), f)
 
 
 class API:
@@ -188,3 +204,7 @@ class API:
         k = self.requests_kwargs
         k.update(kwargs)
         return requests.post(**k)
+
+
+if __name__ == '__main__':
+    parse_traders(*get_apis_for_all_traders(), file="traders.json")

@@ -6,3 +6,4 @@ proxies.json
 .terraform
 .terraform.tfstate
 .terraform.tfstate.backup
+.pytest_Cache

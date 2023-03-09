@@ -1,0 +1,26 @@
+name: release
+
+on:
+  schedule:
+    - cron: "0 04 * * *"
+  workflow_dispatch:
+  push:
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@ac593985615ec2ede58e132d2e21d2b1cbd6127c
+        with:
+          fetch-depth: 0
+
+      - name: Generate
+        run: |
+          pip install -r ./binance/requirements.txt
+          python ./binance/getleaderboardrank.py
+
+      - uses: stefanzweifel/git-auto-commit-action@c8254de74fb2d4577fe54a38cde3186515e9931c
+        with:
+          commit_message: update traders

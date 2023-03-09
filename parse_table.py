@@ -118,7 +118,8 @@ $(function() {
 });
 """
 
-print(f"""
+
+body = f"""
 <html>
 <head>
 <meta charset='utf-8'>
@@ -144,4 +145,8 @@ print(f"""
     </script>
 </body>
 </html>
-""")
+"""
+
+import htmlmin
+print(htmlmin.minify(body))
+

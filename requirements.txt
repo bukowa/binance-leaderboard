@@ -5,3 +5,4 @@ jupyter==1.0.0
 aiohttp==3.8.4
 pytest==7.2.2
 black==23.1.0
+htmlmin==0.1.12

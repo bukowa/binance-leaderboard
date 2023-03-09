@@ -1,11 +1,10 @@
-FROM ubuntu
-ARG SQUID_VERSION=5.2-1ubuntu4
+FROM alpine
 
-RUN apt update
-RUN apt install -y \
+RUN apk update
+RUN apk add \
     apache2-utils \
-    squid=$SQUID_VERSION \
-    && rm -rf /var/lib/apt/lists/*
+    squid \
+    bash
 
 COPY squid.conf /etc/squid/squid.conf
 EXPOSE 3128

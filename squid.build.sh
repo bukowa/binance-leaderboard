@@ -1,7 +1,7 @@
 #!/bin/bash
 set -e
 
-tag=${DOCKER_TAG:-"dockersquidproxybinanceleaderboardtes"}
+tag=${DOCKER_TAG:-"dockersquidproxybinanceleaderboardtest"}
 docker build --tag=$tag -f squid.Dockerfile .
 
 if [[ "$1" == "copy" ]]
@@ -22,3 +22,10 @@ then
   docker run --rm -it -p 3128:3128 \
     -e SQUID_USER=1 -e SQUID_PASS=2 $tag
 fi
+
+if [[ "$1" == push ]]
+then
+  docker tag ${tag} bukowa/squidproxy
+  docker push bukowa/squidproxy
+fi
+

@@ -78,7 +78,7 @@ for v in traders:
         raise err
     if data:
         for d in data:
-            d['uuid'] = uuid
+            d['uuid'] = v['encryptedUid']
             positions.append(
                 dataclasses.asdict(Position(**d))
             )

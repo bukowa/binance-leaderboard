@@ -1,37 +1,57 @@
 import pandas as pd
 
-df = pd.read_json('positions.json')
+df = pd.read_json("positions.json")
+
 
 def get(index, key):
     return df.loc[index, key]
+
 
 def set(index, key, value):
     df.loc[index, key] = value
 
 
 for i in range(len(df)):
-    pnl = get(i, 'pnl')
-    set(i, 'pnl', f"{pnl:.2f}")
+    pnl = get(i, "pnl")
+    set(i, "pnl", f"{pnl:.2f}")
 
-    roe = get(i, 'roe')
-    set(i, 'roe', f"{roe:.3f}")
+    roe = get(i, "roe")
+    set(i, "roe", f"{roe:.3f}")
 
-    markPrice = get(i, 'markPrice')
+    markPrice = get(i, "markPrice")
     if int(markPrice) > 0:
-        set(i, 'markPrice', f"{markPrice:.2f}")
+        set(i, "markPrice", f"{markPrice:.2f}")
 
-    entryPrice = get(i, 'entryPrice')
+    entryPrice = get(i, "entryPrice")
     if int(entryPrice) > 0:
-        set(i, 'entryPrice', f"{entryPrice:.2f}")
+        set(i, "entryPrice", f"{entryPrice:.2f}")
 
-    user = get(i, 'uuid')
-    set(i, 'user', f'<a href="https://www.binance.com/en/futures-activity/leaderboard/user/um?encryptedUid={user}" target="_blank">click</a>')
+    user = get(i, "uuid")
+    set(
+        i,
+        "user",
+        f'<a href="https://www.binance.com/en/futures-activity/leaderboard/user/um?encryptedUid={user}" target="_blank">click</a>',
+    )
 
-    set(i, 'amount', str(get(i, 'amount')))
+    set(i, "amount", str(get(i, "amount")))
 
-df = df.reindex(columns=['symbol', 'amount', 'pnl', 'roe', 'entryPrice', 'markPrice', 'leverage', 'updateTime', 'user'])
-html = df.to_html(header=True, classes='my-table table table-bordered table-striped', escape=False)
-html = '\n'.join(html.splitlines()[:-1])
+df = df.reindex(
+    columns=[
+        "symbol",
+        "amount",
+        "pnl",
+        "roe",
+        "entryPrice",
+        "markPrice",
+        "leverage",
+        "updateTime",
+        "user",
+    ]
+)
+html = df.to_html(
+    header=True, classes="my-table table table-bordered table-striped", escape=False
+)
+html = "\n".join(html.splitlines()[:-1])
 pager = """
   <tfoot>
     <tr>
@@ -148,5 +168,5 @@ body = f"""
 """
 
 import htmlmin
-print(htmlmin.minify(body))
 
+print(htmlmin.minify(body))

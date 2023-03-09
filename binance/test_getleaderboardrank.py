@@ -43,4 +43,3 @@ def test_requests_post2(mock_post):
         },
         headers=API.HEADERS,
     )
-

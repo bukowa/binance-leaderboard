@@ -25,6 +25,7 @@ class Trader:
      'isTwTrader': True,
      'openId': 'zoh752p'}
     """
+
     futureUid: Any
     nickName: str
     userPhotoUrl: str
@@ -53,7 +54,7 @@ class Filter:
 
     @classmethod
     def members(cls):
-        return filter(lambda x: x.name != 'key', cls.__members__.values())
+        return filter(lambda x: x.name != "key", cls.__members__.values())
 
 
 class TradeType(Filter, Enum):
@@ -104,7 +105,7 @@ def get_request_body(*filters) -> dict:
     return {f.key.value: f.value for f in unique_filters(*filters)}
 
 
-def get_apis_for_all_traders() -> list['API']:
+def get_apis_for_all_traders() -> list["API"]:
     """
     Creates and returns a list of API objects for all possible
     combinations of TradeType, IsTrader, PeriodType, StatisticsType.
@@ -122,32 +123,32 @@ def get_apis_for_all_traders() -> list['API']:
     return apis
 
 
-def get_traders(*api: 'API'):
+def get_traders(*api: "API"):
     traders = []
     for a in api:
         trade_type = a.requests_body[TradeType.key.value]
-        for each in a.requests_post().json()['data']:
-            each['tradeType'] = trade_type
+        for each in a.requests_post().json()["data"]:
+            each["tradeType"] = trade_type
             traders.append(Trader(**each))
     return traders
 
 
-def get_unique_traders(*api: 'API'):
+def get_unique_traders(*api: "API"):
     return list(set(get_traders(*api)))
 
 
-def parse_traders(*api: 'API', file='traders.json'):
+def parse_traders(*api: "API", file="traders.json"):
     traders_json = []
 
     if os.path.isfile(file):
-        with open(file, 'r') as f:
+        with open(file, "r") as f:
             traders_json = json.load(f)
 
     traders_rank = [Trader(**d) for d in traders_json]
     traders_rank.extend(get_unique_traders(*api))
 
-    with open(file, 'w') as f:
-        json.dump(list(map(asdict, set(traders_rank))), f, indent='\t')
+    with open(file, "w") as f:
+        json.dump(list(map(asdict, set(traders_rank))), f, indent="\t")
 
 
 class API:
@@ -156,6 +157,7 @@ class API:
     number of filter objects as input and filters the leaderboard data according to
     the specified filters.
     """
+
     URL = "https://www.binance.com/bapi/futures/v3/public/future/leaderboard/getLeaderboardRank"
 
     HEADERS = {"content-type": "application/json"}
@@ -210,5 +212,5 @@ class API:
         return requests.post(**k)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     parse_traders(*get_apis_for_all_traders(), file="traders.json")

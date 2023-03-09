@@ -13,6 +13,7 @@ from selenium.webdriver.support.wait import WebDriverWait
 
 PWD = Path(__file__).resolve().parent
 
+
 def wait_for_button(id_):
     try:
         button = WebDriverWait(driver, 10).until(
@@ -23,7 +24,7 @@ def wait_for_button(id_):
 
 
 # Leaderboard
-url_leaderboard = 'https://www.binance.com/en/futures-activity/leaderboard/futures'
+url_leaderboard = "https://www.binance.com/en/futures-activity/leaderboard/futures"
 
 # Driver
 # Create a new ChromeOptions object
@@ -35,8 +36,7 @@ chrome_options = Options()
 print("driver")
 # Create a new WebDriver using the ChromeOptions object
 driver = webdriver.Remote(
-    command_executor="http://127.0.0.1:4991",
-    options=chrome_options
+    command_executor="http://127.0.0.1:4991", options=chrome_options
 )
 
 print("navigating")
@@ -44,21 +44,24 @@ driver.maximize_window()
 
 # Navigate to the Google homepage
 driver.get(url_leaderboard)
-driver.execute_script('localStorage.setItem("leaderboradTraderWagonBannerStatusKey", "hide")')
+driver.execute_script(
+    'localStorage.setItem("leaderboradTraderWagonBannerStatusKey", "hide")'
+)
 driver.get(url_leaderboard)
 
 wait_for_button("next-page")
 wait_for_button("onetrust-reject-all-handler")
 driver.execute_script("document.getElementById('onetrust-reject-all-handler').click()")
 
+
 def get_next_page_button():
-    wait_for_button('next-page')
-    return driver.find_element(By.ID, 'next-page')
+    wait_for_button("next-page")
+    return driver.find_element(By.ID, "next-page")
 
 
 def is_last_page():
-    wait_for_button('next-page')
-    if get_next_page_button().get_attribute('disabled'):
+    wait_for_button("next-page")
+    if get_next_page_button().get_attribute("disabled"):
         return True
     return False
 
@@ -68,28 +71,30 @@ def visit_page(number: int, _timeframe: TimeFilter, _typefilter: TypeFilter):
     driver.get(url_leaderboard)
     _typefilter.click(driver)
     _timeframe.click(driver)
-    wait_for_button('next-page')
+    wait_for_button("next-page")
 
     if number == 1:
         return
     click_times = number - 1
     clicked = 0
     while clicked != click_times:
-        wait_for_button('next-page')
+        wait_for_button("next-page")
         # scroll to bottom
         actions = ActionChains(driver)
         actions.send_keys(Keys.PAGE_DOWN).perform()
         # remove ugly things
-        driver.execute_script('''
+        driver.execute_script(
+            """
             var elements = document.getElementsByClassName('css-1bbc1pg');
             if (elements.length > 0) {
                 elements[0].remove();
             }
-        ''')
+        """
+        )
         # click next page
         driver.execute_script("document.getElementById('next-page').click()")
         clicked += 1
-        wait_for_button('next-page')
+        wait_for_button("next-page")
         if is_last_page():
             break
 
@@ -113,17 +118,21 @@ for typefilter in TypeFilter.__members__.values():
         while not done:
             current_page += 1
             visit_page(current_page, timefilter, typefilter)
-            wait_for_button('next-page')
-            data = driver.execute_script("return document.querySelectorAll('.TraderCard');")
+            wait_for_button("next-page")
+            data = driver.execute_script(
+                "return document.querySelectorAll('.TraderCard');"
+            )
             traders_count = len(data)
 
             for i in range(traders_count):
                 print(f"visiting trader {i} on page {current_page}")
 
                 x = data[i]
-                driver.execute_script(f"document.querySelectorAll('.TraderCard')[{i}].click()")
+                driver.execute_script(
+                    f"document.querySelectorAll('.TraderCard')[{i}].click()"
+                )
                 print(driver.current_url)
-                uuid = driver.current_url.split('encryptedUid=')[1]
+                uuid = driver.current_url.split("encryptedUid=")[1]
                 traders.append(
                     Trader(
                         uuid=uuid,
@@ -131,8 +140,10 @@ for typefilter in TypeFilter.__members__.values():
                     )
                 )
                 visit_page(current_page, timefilter, typefilter)
-                wait_for_button('next-page')
-                data = driver.execute_script("return document.querySelectorAll('.TraderCard');")
+                wait_for_button("next-page")
+                data = driver.execute_script(
+                    "return document.querySelectorAll('.TraderCard');"
+                )
 
             if is_last_page():
                 done = True
@@ -141,8 +152,8 @@ for typefilter in TypeFilter.__members__.values():
 driver.quit()
 
 # Read old traders
-if os.path.isfile('traders.json'):
-    with open('traders.json', 'r') as f:
+if os.path.isfile("traders.json"):
+    with open("traders.json", "r") as f:
         old_traders = json.load(f)
 else:
     old_traders = {}
@@ -153,5 +164,5 @@ for t in traders:
     output_traders[t.uuid] = t.typefilter
 
 # Save all traders
-with open('traders.json', 'w') as f:
-    json.dump(output_traders, f, indent='\t')
+with open("traders.json", "w") as f:
+    json.dump(output_traders, f, indent="\t")

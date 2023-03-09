@@ -19,17 +19,19 @@ BODY = {
     "tradeType": "PERPETUAL",
 }
 
-API = "https://www.binance.com/bapi/futures/v1/public/future/leaderboard/getOtherPosition"
+API = (
+    "https://www.binance.com/bapi/futures/v1/public/future/leaderboard/getOtherPosition"
+)
 
 
 traders = {}
-with open('traders_with_position.json', 'r') as f:
+with open("traders_with_position.json", "r") as f:
     traders = json.load(f)
 
 
 proxy_list = []
 if PROXIES_PATH.exists():
-    with open('proxies.json') as f:
+    with open("proxies.json") as f:
         proxy_list = json.load(f)
 
 
@@ -54,39 +56,38 @@ class Position:
     tradeBefore: bool
     leverage: int
     uuid: str
+    tradeType: str
 
 
 positions = []
 
 for v in traders:
     request_kwargs = dict(
-        url=API, json=get_body(v['encryptedUid'], v['tradeType']), headers=HEADERS
+        url=API, json=get_body(v["encryptedUid"], v["tradeType"]), headers=HEADERS
     )
     # request with proxies
     if proxy_list:
-        request_kwargs['proxies'] = {
-            'http': random.choice(proxy_list),
-            'https': random.choice(proxy_list),
+        request_kwargs["proxies"] = {
+            "http": random.choice(proxy_list),
+            "https": random.choice(proxy_list),
         }
 
     print(f"{v['encryptedUid']}: {v}: {request_kwargs}")
     r = requests.post(**request_kwargs)
 
     try:
-        data = r.json()['data'].get("otherPositionRetList")
+        data = r.json()["data"].get("otherPositionRetList")
     except JSONDecodeError as err:
         print(r, r.text)
         raise err
     if data:
         for d in data:
-            d['uuid'] = v['encryptedUid']
-            positions.append(
-                dataclasses.asdict(Position(**d))
-            )
+            d["uuid"] = v["encryptedUid"]
+            d["tradeType"] = v["tradeType"]
+            positions.append(dataclasses.asdict(Position(**d)))
 
     if not proxy_list:
         time.sleep(5)
 
-with open('positions.json', 'w') as f:
-    json.dump(positions, f, indent='\t')
-
+with open("positions.json", "w") as f:
+    json.dump(positions, f, indent="\t")

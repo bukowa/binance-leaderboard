@@ -10,3 +10,4 @@ proxies.json
 function/packages/table/tablesorter/tablesorter.py
 .terraform*
 .terraform.*
+__pycache__

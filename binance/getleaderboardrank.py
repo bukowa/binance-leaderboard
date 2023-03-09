@@ -143,7 +143,7 @@ def parse_traders(*api: 'API', file='traders.json'):
     traders_rank.extend(get_unique_traders(*api))
 
     with open(file, 'w') as f:
-        json.dump(list(map(asdict, set(traders_rank))), f)
+        json.dump(list(map(asdict, set(traders_rank))), f, indent='\t')
 
 
 class API:

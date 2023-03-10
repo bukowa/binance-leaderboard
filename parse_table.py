@@ -18,7 +18,7 @@ for i, pos, in enumerate(positions):
             total_roi = perf['value']
 
     positions[i]['total_pnl'] = total_pnl
-    positions[i]['total_roi'] = total_roi
+    positions[i]['total_roi'] = total_roi * 100
 
 
 df = pd.DataFrame(positions)

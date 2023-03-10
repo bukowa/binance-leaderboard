@@ -13,7 +13,6 @@ output:
 	@terraform output --json | jq '.ips.value' > proxies.json
 	@cat proxies.json
 
-
 .PHONY: parse_traders
 parse_traders:
 	python ./binance/getleaderboardrank.py

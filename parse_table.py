@@ -1,7 +1,27 @@
 import pandas as pd
+from binance.common.common import load_json
 
-df = pd.read_json("./binance/positions.json")
+positions = load_json('./binance/positions.json')
+performance = load_json('./binance/traders_performance.json')
 
+uuid_performance = {
+    p['uid']: p['performanceRetList'] for p in performance
+}
+
+for i, pos, in enumerate(positions):
+    perf_list = uuid_performance[positions[i]['uuid']]
+
+    for perf in perf_list:
+        if perf['periodType'] == 'ALL' and perf['statisticsType'] == 'PNL':
+            total_pnl = perf['value']
+        if perf['periodType'] == 'ALL' and perf['statisticsType'] == 'ROI':
+            total_roi = perf['value']
+
+    positions[i]['total_pnl'] = total_pnl
+    positions[i]['total_roi'] = total_roi
+
+
+df = pd.DataFrame(positions)
 
 def get(index, key):
     return df.loc[index, key]
@@ -26,6 +46,10 @@ for i in range(len(df)):
     if int(entryPrice) > 0:
         set(i, "entryPrice", f"{entryPrice:.2f}")
 
+    total_pnl = get(i, "total_pnl")
+    if int(entryPrice) > 0:
+        set(i, "total_pnl", f"{total_pnl:.2f}")
+
     user = get(i, "uuid")
     set(
         i,
@@ -35,8 +59,7 @@ for i in range(len(df)):
 
     set(i, "amount", str(get(i, "amount")))
 
-df = df.reindex(
-    columns=[
+columns = [
         "symbol",
         "amount",
         "pnl",
@@ -45,17 +68,21 @@ df = df.reindex(
         "markPrice",
         "leverage",
         "updateTime",
+        "total_pnl",
+        "total_roi",
         "user",
     ]
-)
+
+df = df.reindex(columns=columns)
+
 html = df.to_html(
     header=True, classes="my-table table table-bordered table-striped", escape=False
 )
 html = "\n".join(html.splitlines()[:-1])
-pager = """
+pager = f"""
   <tfoot>
     <tr>
-      <th colspan="13" class="ts-pager">
+      <th colspan="155" class="ts-pager">
         <div class="form-inline">
           <div class="btn-group btn-group-sm mx-1" role="group">
             <button type="button" class="btn btn-secondary first" title="first">⇤</button>

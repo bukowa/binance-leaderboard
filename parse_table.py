@@ -1,5 +1,5 @@
 import pandas as pd
-from binance.common.common import load_json
+from binance.common.common import load_json, save_json
 
 positions = load_json('./binance/positions.json')
 performance = load_json('./binance/traders_performance.json')
@@ -22,6 +22,8 @@ for i, pos, in enumerate(positions):
 
 
 df = pd.DataFrame(positions)
+save_json('./binance/positions.json', positions, indent='\t')
+
 
 def get(index, key):
     return df.loc[index, key]

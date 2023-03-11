@@ -37,7 +37,8 @@ all: parse_traders parse_positions_proxy parse_table
 
 .PHONY: notebook
 notebook:
-	jupyter notebook
+	jupyter-lab
+
 
 FFILE=./function/packages/table/tablesorter/tablesorter.py
 FNAME=table/tablesorter

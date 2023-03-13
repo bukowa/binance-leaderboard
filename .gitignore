@@ -6,8 +6,10 @@ proxies.json
 .terraform
 .terraform.tfstate
 .terraform.tfstate.backup
-.pytest_Cache
 function/packages/table/tablesorter/tablesorter.py
 .terraform*
 .terraform.*
 __pycache__
+.pytest_cache
+/binance/terraform.tfstate
+/binance/terraform.tfstate.backup

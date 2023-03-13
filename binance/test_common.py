@@ -1,4 +1,4 @@
-from .common import new_requests_proxy_setter
+from .common.common import new_requests_proxy_setter
 
 
 def test_new_requests_proxy_setter():

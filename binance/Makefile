@@ -14,6 +14,8 @@ req:
 
 3: 1 2 parse_positions_proxies
 
+4: 1 2 parse_positions
+
 parse_positions:
 	python ./getotherposition.py
 

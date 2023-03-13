@@ -98,8 +98,10 @@ if __name__ == "__main__":
         if os.path.isfile('proxies.json'):
             _proxies = 'proxies.json'
 
+    # get positions only for good traders
+    save_json('good_traders.json', [t for t in load_json('traders.json') if t.get('pnl') and t['pnl'] > 100000], indent='\t')
     parse_positions(
         file="positions.json",
-        file_traders="traders_with_position.json",
+        file_traders="good_traders.json",
         proxies=_proxies,
     )

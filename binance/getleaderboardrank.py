@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+import logging
 from dataclasses import dataclass, asdict
 from enum import Enum
 from typing import Any
@@ -6,6 +7,8 @@ from typing import Any
 import requests
 
 from common.common import save_json, load_json_default
+
+logger = logging.getLogger(__name__)
 
 
 @dataclass
@@ -111,7 +114,11 @@ def get_traders(*api: "API"):
     traders = []
     for a in api:
         trade_type = a.requests_body[TradeType.key.value]
-        for each in a.requests_post().json()["data"]:
+        r = a.requests_post()
+        logger.debug(r.status_code)
+        rj = r.json()
+        logger.debug(rj.keys())
+        for each in rj["data"]:
             each["tradeType"] = trade_type
             traders.append(Trader(**each))
     return traders
@@ -192,4 +199,5 @@ class API:
 
 
 if __name__ == "__main__":
+    logging.basicConfig(level=logging.DEBUG)
     parse_all_traders(file="traders.json")
